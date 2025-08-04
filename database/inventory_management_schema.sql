@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 CREATE TABLE inventory (
     id BIGSERIAL PRIMARY KEY,
     product_id BIGINT REFERENCES products(id) ON DELETE CASCADE,
-    seller_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    seller_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     sku VARCHAR(100) UNIQUE NOT NULL,
     barcode VARCHAR(100),
     quantity_available INTEGER NOT NULL DEFAULT 0,
@@ -39,7 +39,7 @@ CREATE TABLE inventory (
 -- Inventory locations (warehouses, stores, etc.)
 CREATE TABLE inventory_locations (
     id BIGSERIAL PRIMARY KEY,
-    seller_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    seller_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     address TEXT,
     city VARCHAR(100),
@@ -65,7 +65,7 @@ CREATE TABLE inventory_transactions (
     reference_type VARCHAR(50), -- 'order', 'purchase_order', 'adjustment', 'transfer'
     reference_id BIGINT,
     notes TEXT,
-    performed_by BIGINT REFERENCES users(id),
+    performed_by UUID REFERENCES auth.users(id),
     transaction_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -77,7 +77,7 @@ CREATE TABLE inventory_adjustments (
     adjustment_type VARCHAR(50) NOT NULL, -- 'correction', 'damage', 'loss', 'found'
     quantity_adjusted INTEGER NOT NULL,
     reason TEXT NOT NULL,
-    adjusted_by BIGINT REFERENCES users(id),
+    adjusted_by UUID REFERENCES auth.users(id),
     adjustment_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -85,7 +85,7 @@ CREATE TABLE inventory_adjustments (
 -- Purchase orders for inventory
 CREATE TABLE purchase_orders (
     id BIGSERIAL PRIMARY KEY,
-    seller_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    seller_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     supplier_id BIGINT,
     supplier_name VARCHAR(255),
     po_number VARCHAR(100) UNIQUE NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE purchase_orders (
     actual_delivery_date DATE,
     total_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     notes TEXT,
-    created_by BIGINT REFERENCES users(id),
+    created_by UUID REFERENCES auth.users(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -123,7 +123,7 @@ CREATE TABLE inventory_alerts (
     alert_level VARCHAR(20) NOT NULL, -- 'info', 'warning', 'critical'
     message TEXT NOT NULL,
     is_resolved BOOLEAN NOT NULL DEFAULT false,
-    resolved_by BIGINT REFERENCES users(id),
+    resolved_by UUID REFERENCES auth.users(id),
     resolved_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -149,7 +149,7 @@ CREATE TABLE inventory_analytics (
 -- Inventory settings and preferences
 CREATE TABLE inventory_settings (
     id BIGSERIAL PRIMARY KEY,
-    seller_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    seller_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     setting_key VARCHAR(100) NOT NULL,
     setting_value TEXT,
     setting_type VARCHAR(20) NOT NULL DEFAULT 'string', -- 'string', 'number', 'boolean', 'json'
@@ -185,7 +185,7 @@ CREATE OR REPLACE FUNCTION update_inventory_quantity(
     p_reference_type VARCHAR(50) DEFAULT NULL,
     p_reference_id BIGINT DEFAULT NULL,
     p_notes TEXT DEFAULT NULL,
-    p_performed_by BIGINT DEFAULT NULL
+    p_performed_by UUID DEFAULT NULL
 )
 RETURNS BIGINT AS $$
 DECLARE
@@ -301,7 +301,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Function to get inventory summary
-CREATE OR REPLACE FUNCTION get_inventory_summary(p_seller_id BIGINT)
+CREATE OR REPLACE FUNCTION get_inventory_summary(p_seller_id UUID)
 RETURNS TABLE (
     total_products INTEGER,
     total_quantity INTEGER,
@@ -391,7 +391,7 @@ SELECT
 FROM inventory_transactions it
 JOIN inventory i ON it.inventory_id = i.id
 JOIN products p ON i.product_id = p.id
-LEFT JOIN users u ON it.performed_by = u.id
+LEFT JOIN auth.users u ON it.performed_by = u.id
 ORDER BY it.transaction_date DESC;
 
 -- RLS Policies
@@ -418,11 +418,11 @@ CREATE POLICY "Users can update their own inventory" ON inventory
 -- Sample data (commented out for production)
 /*
 INSERT INTO inventory_locations (seller_id, name, address, city, state, country, is_primary) VALUES
-(1, 'Main Warehouse', '123 Commerce St', 'New York', 'NY', 'USA', true),
-(1, 'Secondary Warehouse', '456 Industrial Ave', 'Los Angeles', 'CA', 'USA', false);
+('your-user-uuid-here', 'Main Warehouse', '123 Commerce St', 'New York', 'NY', 'USA', true),
+('your-user-uuid-here', 'Secondary Warehouse', '456 Industrial Ave', 'Los Angeles', 'CA', 'USA', false);
 
 INSERT INTO inventory (product_id, seller_id, sku, quantity_available, minimum_stock_level, reorder_point, unit_cost, unit_price, supplier_name, location_name) VALUES
-(1, 1, 'PROD-001', 50, 10, 20, 15.00, 29.99, 'Supplier A', 'Main Warehouse'),
-(2, 1, 'PROD-002', 25, 5, 15, 8.50, 19.99, 'Supplier B', 'Main Warehouse'),
-(3, 1, 'PROD-003', 0, 10, 20, 12.00, 24.99, 'Supplier C', 'Secondary Warehouse');
+(1, 'your-user-uuid-here', 'PROD-001', 50, 10, 20, 15.00, 29.99, 'Supplier A', 'Main Warehouse'),
+(2, 'your-user-uuid-here', 'PROD-002', 25, 5, 15, 8.50, 19.99, 'Supplier B', 'Main Warehouse'),
+(3, 'your-user-uuid-here', 'PROD-003', 0, 10, 20, 12.00, 24.99, 'Supplier C', 'Secondary Warehouse');
 */ 

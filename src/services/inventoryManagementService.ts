@@ -3,7 +3,7 @@ import { supabase } from '../config/supabase';
 export interface InventoryItem {
   id: number;
   product_id: number;
-  seller_id: number;
+  seller_id: string; // Changed from number to string (UUID)
   sku: string;
   barcode?: string;
   quantity_available: number;
@@ -30,7 +30,7 @@ export interface InventoryItem {
 
 export interface InventoryLocation {
   id: number;
-  seller_id: number;
+  seller_id: string; // Changed from number to string (UUID)
   name: string;
   address?: string;
   city?: string;
@@ -55,7 +55,7 @@ export interface InventoryTransaction {
   reference_type?: string;
   reference_id?: number;
   notes?: string;
-  performed_by?: number;
+  performed_by?: string; // Changed from number to string (UUID)
   transaction_date: string;
   created_at: string;
 }
@@ -67,14 +67,14 @@ export interface InventoryAlert {
   alert_level: 'info' | 'warning' | 'critical';
   message: string;
   is_resolved: boolean;
-  resolved_by?: number;
+  resolved_by?: string; // Changed from number to string (UUID)
   resolved_at?: string;
   created_at: string;
 }
 
 export interface PurchaseOrder {
   id: number;
-  seller_id: number;
+  seller_id: string; // Changed from number to string (UUID)
   supplier_id?: number;
   supplier_name?: string;
   po_number: string;
@@ -84,7 +84,7 @@ export interface PurchaseOrder {
   actual_delivery_date?: string;
   total_amount: number;
   notes?: string;
-  created_by?: number;
+  created_by?: string; // Changed from number to string (UUID)
   created_at: string;
   updated_at: string;
 }
@@ -100,7 +100,7 @@ export interface InventorySummary {
 
 class InventoryManagementService {
   // Get all inventory items for a seller
-  async getInventoryItems(sellerId: number): Promise<InventoryItem[]> {
+  async getInventoryItems(sellerId: string): Promise<InventoryItem[]> {
     try {
       const { data, error } = await supabase
         .from('inventory')
@@ -118,7 +118,7 @@ class InventoryManagementService {
   }
 
   // Get inventory overview with product details
-  async getInventoryOverview(sellerId: number) {
+  async getInventoryOverview(sellerId: string) {
     try {
       const { data, error } = await supabase
         .from('inventory_overview')
@@ -134,7 +134,7 @@ class InventoryManagementService {
   }
 
   // Get inventory summary statistics
-  async getInventorySummary(sellerId: number): Promise<InventorySummary> {
+  async getInventorySummary(sellerId: string): Promise<InventorySummary> {
     try {
       const { data, error } = await supabase
         .rpc('get_inventory_summary', { p_seller_id: sellerId });
@@ -155,7 +155,7 @@ class InventoryManagementService {
   }
 
   // Get low stock alerts
-  async getLowStockAlerts(sellerId: number) {
+  async getLowStockAlerts(sellerId: string) {
     try {
       const { data, error } = await supabase
         .from('low_stock_alerts')
@@ -170,7 +170,7 @@ class InventoryManagementService {
   }
 
   // Get inventory alerts
-  async getInventoryAlerts(sellerId: number): Promise<InventoryAlert[]> {
+  async getInventoryAlerts(sellerId: string): Promise<InventoryAlert[]> {
     try {
       const { data, error } = await supabase
         .from('inventory_alerts')
@@ -198,7 +198,7 @@ class InventoryManagementService {
     referenceType?: string,
     referenceId?: number,
     notes?: string,
-    performedBy?: number
+    performedBy?: string
   ): Promise<number> {
     try {
       const { data, error } = await supabase
@@ -226,7 +226,7 @@ class InventoryManagementService {
     adjustmentType: string,
     quantityAdjusted: number,
     reason: string,
-    adjustedBy?: number
+    adjustedBy?: string
   ) {
     try {
       const { data, error } = await supabase
@@ -273,7 +273,7 @@ class InventoryManagementService {
   }
 
   // Get inventory locations
-  async getInventoryLocations(sellerId: number): Promise<InventoryLocation[]> {
+  async getInventoryLocations(sellerId: string): Promise<InventoryLocation[]> {
     try {
       const { data, error } = await supabase
         .from('inventory_locations')
@@ -343,7 +343,7 @@ class InventoryManagementService {
   }
 
   // Get purchase orders
-  async getPurchaseOrders(sellerId: number): Promise<PurchaseOrder[]> {
+  async getPurchaseOrders(sellerId: string): Promise<PurchaseOrder[]> {
     try {
       const { data, error } = await supabase
         .from('purchase_orders')
@@ -413,7 +413,7 @@ class InventoryManagementService {
   }
 
   // Search inventory
-  async searchInventory(sellerId: number, searchTerm: string): Promise<InventoryItem[]> {
+  async searchInventory(sellerId: string, searchTerm: string): Promise<InventoryItem[]> {
     try {
       const { data, error } = await supabase
         .from('inventory')
@@ -451,7 +451,7 @@ class InventoryManagementService {
   }
 
   // Export inventory data
-  async exportInventoryData(sellerId: number, format: 'csv' | 'json' = 'json') {
+  async exportInventoryData(sellerId: string, format: 'csv' | 'json' = 'json') {
     try {
       const { data, error } = await supabase
         .from('inventory_overview')
@@ -475,7 +475,7 @@ class InventoryManagementService {
   }
 
   // Get inventory settings
-  async getInventorySettings(sellerId: number) {
+  async getInventorySettings(sellerId: string) {
     try {
       const { data, error } = await supabase
         .from('inventory_settings')
@@ -491,7 +491,7 @@ class InventoryManagementService {
   }
 
   // Update inventory settings
-  async updateInventorySettings(sellerId: number, settings: Array<{ setting_key: string; setting_value: string; setting_type: string }>) {
+  async updateInventorySettings(sellerId: string, settings: Array<{ setting_key: string; setting_value: string; setting_type: string }>) {
     try {
       const { data, error } = await supabase
         .from('inventory_settings')
