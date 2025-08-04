@@ -386,7 +386,7 @@ SELECT
     it.reference_type,
     it.reference_id,
     it.notes,
-    u.name as performed_by_name,
+    u.email as performed_by_email,
     it.transaction_date
 FROM inventory_transactions it
 JOIN inventory i ON it.inventory_id = i.id
