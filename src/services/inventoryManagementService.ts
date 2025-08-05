@@ -56,6 +56,7 @@ export interface InventoryTransaction {
   reference_id?: number;
   notes?: string;
   performed_by?: string; // Changed from number to string (UUID)
+  performed_by_email?: string; // Email of the user who performed the transaction
   transaction_date: string;
   created_at: string;
 }
