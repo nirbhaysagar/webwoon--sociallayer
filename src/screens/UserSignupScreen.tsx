@@ -194,9 +194,13 @@ const UserSignupScreen: React.FC = () => {
           <View style={styles.termsContainer}>
             <Text style={styles.termsText}>
               By creating an account, you agree to our{' '}
-              <Text style={styles.termsLink}>Terms of Service</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('TermsOfService' as any)}>
+                <Text style={styles.termsLink}>Terms of Service</Text>
+              </TouchableOpacity>
               {' '}and{' '}
-              <Text style={styles.termsLink}>Privacy Policy</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy' as any)}>
+                <Text style={styles.termsLink}>Privacy Policy</Text>
+              </TouchableOpacity>
             </Text>
           </View>
 

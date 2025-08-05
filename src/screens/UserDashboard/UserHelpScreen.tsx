@@ -133,19 +133,28 @@ export default function UserHelpScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Contact Support</Text>
           <View style={styles.contactContainer}>
-            <TouchableOpacity style={styles.contactCard}>
+            <TouchableOpacity 
+              style={styles.contactCard}
+              onPress={() => navigation.navigate('ContactSupport' as any)}
+            >
               <Ionicons name="chatbubble-outline" size={24} color={colors.primary} />
               <Text style={styles.contactTitle}>Live Chat</Text>
               <Text style={styles.contactDescription}>Chat with our support team</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.contactCard}>
+            <TouchableOpacity 
+              style={styles.contactCard}
+              onPress={() => navigation.navigate('ContactSupport' as any)}
+            >
               <Ionicons name="mail-outline" size={24} color={colors.primary} />
               <Text style={styles.contactTitle}>Email Support</Text>
               <Text style={styles.contactDescription}>support@socialspark.ai</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.contactCard}>
+            <TouchableOpacity 
+              style={styles.contactCard}
+              onPress={() => navigation.navigate('ContactSupport' as any)}
+            >
               <Ionicons name="call-outline" size={24} color={colors.primary} />
               <Text style={styles.contactTitle}>Phone Support</Text>
               <Text style={styles.contactDescription}>1-800-SPARK-HELP</Text>
